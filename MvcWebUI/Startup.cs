@@ -7,11 +7,13 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Business.Abstract;
 using Business.Concrete;
 using DataAccess.Abstract;
 using DataAccess.Concrete.EntityFramework;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using MvcWebUI.Helpers;
 
@@ -37,7 +39,9 @@ namespace MvcWebUI
             services.AddScoped<ICartSessionHelper, CartSessionHelper>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSession();
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                .AddFluentValidation(option =>
+                    option.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()));
 
         }
 

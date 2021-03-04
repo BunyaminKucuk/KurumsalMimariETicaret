@@ -5,7 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Business.Abstract;
 using Entities.Concrete;
+using Entities.DomainModels;
 using MvcWebUI.Helpers;
+using MvcWebUI.Models;
 
 namespace MvcWebUI.Controllers
 {
@@ -31,7 +33,18 @@ namespace MvcWebUI.Controllers
 
             _cartSessionHelper.SetCart("cart", cart);
 
+            TempData.Add("message", product.ProductName + " added basket");
+
             return RedirectToAction("Index", "Product");
+        }
+
+        public IActionResult Index()
+        {
+            var model = new CartListViewModel
+            {
+                Cart = _cartSessionHelper.GetCart("cart")
+            };
+            return View(model);
         }
 
         public IActionResult RemoveFromCart(int productId)
@@ -40,8 +53,30 @@ namespace MvcWebUI.Controllers
             var cart = _cartSessionHelper.GetCart("cart");
             _cartService.RemoveFromCart(cart, productId);
             _cartSessionHelper.SetCart("cart", cart);
+            TempData.Add("message", product.ProductName + " deleted basket");
 
-            return RedirectToAction("Index", "Product");
+            return RedirectToAction("Index", "Cart");
+        }
+
+        public IActionResult Complate()
+        {
+            var model = new ShippingDetailsViewModel
+            {
+                ShippingDetail = new ShippingDetail()
+            };
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Complate(ShippingDetail shippingDetail)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+            TempData.Add("message", "Your order completed successfully");
+            _cartSessionHelper.Clear();
+            return RedirectToAction("Index", "Cart");
         }
     }
 }
